@@ -46,7 +46,7 @@ const createContent = asyncHandler(async (req, res) => {
           title: content.title,
           description: content.description,
           createdBy: content.createdBy,
-          auther: autherName
+          auther: content.auther
         },
       },
       "Content created successfully"
