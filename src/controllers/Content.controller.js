@@ -19,16 +19,16 @@ const createContent = asyncHandler(async (req, res) => {
   if (!img) {
     return res.status(500).json(new ApiError(500, "Failed to upload image"));
   }
+
+  const autherName = await Auth.findById(req.user.id)
+
   const content = await Content.create({
     img: img.url,
     title,
     description,
     createdBy: req.user.id,
+    auther: autherName.fullName
   });
-
-  const autherName = await Auth.findById(id)
-
-  autherName = autherName.fullName
 
   //   console.log("User id", req.user)
 
