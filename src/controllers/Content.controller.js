@@ -3,6 +3,7 @@ import asyncHandler from "../utils/asyncHandler.util.js";
 import { ApiResponse } from "../utils/apiResponse.util.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.util.js";
 import Content from "../models/Content.model.js";
+import Auth from "../models/Auth.model.js"
 
 const createContent = asyncHandler(async (req, res) => {
   const { title, description } = req.body;
@@ -25,6 +26,10 @@ const createContent = asyncHandler(async (req, res) => {
     createdBy: req.user.id,
   });
 
+  const autherName = await Auth.findById(id)
+
+  autherName = autherName.fullName
+
   //   console.log("User id", req.user)
 
   if (!content) {
@@ -41,6 +46,7 @@ const createContent = asyncHandler(async (req, res) => {
           title: content.title,
           description: content.description,
           createdBy: content.createdBy,
+          auther: autherName
         },
       },
       "Content created successfully"

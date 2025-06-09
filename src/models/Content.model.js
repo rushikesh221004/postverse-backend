@@ -17,6 +17,9 @@ const contentSchema = new mongoose.Schema(
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Auth",
+    },
+    auther: {
+      type: String
     }
   },
   { timestamps: true }
