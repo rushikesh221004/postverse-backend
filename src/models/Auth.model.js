@@ -25,6 +25,10 @@ const authSchema = new mongoose.Schema(
       trim: true,
       minlength: 6,
     },
+    contents: {
+      type: Number,
+      default: 0
+    },
     refreshToken: {
       type: String
     }

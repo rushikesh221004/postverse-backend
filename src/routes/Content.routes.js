@@ -1,6 +1,6 @@
 import express from "express";
 import isLoggedIn from "../middlewares/isLoggedIn.middleware.js";
-import { createContent, deleteContent, getAllContent, getContentById, updateContent } from "../controllers/Content.controller.js";
+import { createContent, deleteContent, getAllContent, getContentAllContentsCreatedByUser, getContentById, updateContent } from "../controllers/Content.controller.js";
 import validate from "../middlewares/Validation.middleware.js";
 import { createContentValidator } from "../validators/Content.validator.js";
 import { upload } from "../middlewares/multer.middleware.js";
@@ -26,6 +26,8 @@ contentRoutes.route("/update-content/:id").put(
 contentRoutes.route("/get-all-contents").get(isLoggedIn, getAllContent)
 
 contentRoutes.route("/get-content/:id").get(isLoggedIn, getContentById)
+
+contentRoutes.route("/get-user-contents").get(isLoggedIn, getContentAllContentsCreatedByUser)
 
 contentRoutes.route("/delete-content/:id").delete(isLoggedIn, deleteContent)
 

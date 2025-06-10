@@ -3,6 +3,7 @@ import { ApiResponse } from "../utils/apiResponse.util.js";
 import { ApiError } from "../utils/apiError.util.js";
 import asyncHandler from "../utils/asyncHandler.util.js";
 import generateAccessAndRefreshToken from "../utils/generateRefAndAccToken.util.js";
+import Content from "../models/Content.model.js";
 
 const cookieOptions = {
   httpOnly: true,
@@ -33,6 +34,7 @@ const registerUser = asyncHandler(async (req, res) => {
         _id: newUser._id,
         fullName: newUser.fullName,
         email: newUser.email,
+        contents: newUser.contents,
       },
     })
   );
@@ -46,7 +48,6 @@ const loginUser = asyncHandler(async (req, res) => {
   if (!existingUser) {
     return res.status(401).json(new ApiError(401, "Invalid credentials"));
   }
-
 
   const isPasswordValid = await existingUser.comparePassword(password);
 
@@ -77,9 +78,39 @@ const logoutUser = asyncHandler(async (req, res) => {
   res.clearCookie("refreshToken", cookieOptions);
   res.clearCookie("accessToken", cookieOptions);
 
-  return res.status(200).json(
-    new ApiResponse(200, null, "User logged out successfully")
-  );
+  return res
+    .status(200)
+    .json(new ApiResponse(200, null, "User logged out successfully"));
 });
 
-export { registerUser, loginUser, logoutUser };
+const userProfile = asyncHandler(async (req, res) => {
+  const id = req.user.id;
+
+  const userDetails = await Auth.findById(id);
+
+  if (!userDetails) {
+    return res
+      .status(401)
+      .json(
+        new ApiError(
+          401,
+          "Unauthorized. User not found. Please register or log in."
+        )
+      );
+  }
+
+  const findAllContents = await Content.find({ createdBy: id });
+
+  if (findAllContents.length === 0) {
+    return res
+      .status(404)
+      .json(new ApiError(404, "No content found for this user."));
+  }
+
+  return res.status(200).json(new ApiResponse(200, {
+    fullName: userDetails.fullName,
+    contents: findAllContents.length
+  }))
+});
+
+export { registerUser, loginUser, logoutUser, userProfile };

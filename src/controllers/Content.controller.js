@@ -3,7 +3,7 @@ import asyncHandler from "../utils/asyncHandler.util.js";
 import { ApiResponse } from "../utils/apiResponse.util.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.util.js";
 import Content from "../models/Content.model.js";
-import Auth from "../models/Auth.model.js"
+import Auth from "../models/Auth.model.js";
 
 const createContent = asyncHandler(async (req, res) => {
   const { title, description } = req.body;
@@ -20,14 +20,14 @@ const createContent = asyncHandler(async (req, res) => {
     return res.status(500).json(new ApiError(500, "Failed to upload image"));
   }
 
-  const autherName = await Auth.findById(req.user.id)
+  const autherName = await Auth.findById(req.user.id);
 
   const content = await Content.create({
     img: img.url,
     title,
     description,
     createdBy: req.user.id,
-    auther: autherName.fullName
+    auther: autherName.fullName,
   });
 
   //   console.log("User id", req.user)
@@ -46,7 +46,7 @@ const createContent = asyncHandler(async (req, res) => {
           title: content.title,
           description: content.description,
           createdBy: content.createdBy,
-          auther: content.auther
+          auther: content.auther,
         },
       },
       "Content created successfully"
@@ -101,9 +101,16 @@ const deleteContent = asyncHandler(async (req, res) => {
 });
 
 const getAllContent = asyncHandler(async (req, res) => {
-  const id = req.user.id
-  if(!id) {
-    return res.status(401).json(new ApiError(401, "You are not logged in. Please log in to access this resource."));
+  const id = req.user.id;
+  if (!id) {
+    return res
+      .status(401)
+      .json(
+        new ApiError(
+          401,
+          "You are not logged in. Please log in to access this resource."
+        )
+      );
   }
   const allContent = await Content.find();
   if (!allContent || allContent.length === 0) {
@@ -122,13 +129,49 @@ const getContentById = asyncHandler(async (req, res) => {
   if (!content) {
     return res.status(404).json(new ApiError(404, "Content not found"));
   }
-  return res.status(200).json(
-    new ApiResponse(
-      200,
-      content,
-      "Content fetched successfully"
-    )
-  );
+  return res
+    .status(200)
+    .json(new ApiResponse(200, content, "Content fetched successfully"));
 });
 
-export { createContent, updateContent, deleteContent, getAllContent, getContentById };
+const getContentAllContentsCreatedByUser = asyncHandler(async (req, res) => {
+  const id = req.user.id;
+
+  if (!id) {
+    return res
+      .status(401)
+      .json(
+        new ApiError(
+          401,
+          "You are not logged in. Please log in to access this resource."
+        )
+      );
+  }
+
+  const findAllContents = await Content.find({ createdBy: id });
+
+  if (findAllContents.length === 0) {
+    return res
+      .status(404)
+      .json(new ApiError(404, "No content found for this user."));
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        findAllContents,
+        "User's created contents fetched successfully."
+      )
+    );
+});
+
+export {
+  createContent,
+  updateContent,
+  deleteContent,
+  getAllContent,
+  getContentById,
+  getContentAllContentsCreatedByUser,
+};
